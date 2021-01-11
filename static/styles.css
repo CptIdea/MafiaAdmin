@@ -1,0 +1,139 @@
+#app {
+    margin-top: 3rem;
+    width: 100%;
+}
+#selector {
+    margin: auto;
+    width: 100%;
+    height: 300px;
+}
+#selector button{
+    padding: 30px;
+    margin: auto;
+    width: 49%;
+    height: 50%;
+    font-size: 150%;
+    border: 3px solid cornflowerblue;
+    -moz-border-radius:75px;
+    -webkit-border-radius: 75px;
+}
+.mode{
+    text-align: center;
+}
+.controller table td{
+    width: 50%;
+}
+.controller table{
+    width: 100%;
+    height: 500px;
+}
+
+.selector_window{
+    width: 300px;
+    height: 50px;
+    text-align: center;
+    padding: 15px;
+    border: 3px solid cornflowerblue;
+    border-radius: 10px;
+    color: cornflowerblue;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+}
+.selector_window_blur{
+    width:100%;
+    height: 2000px;
+    background-color: rgba(0,0,0,0.5);
+    overflow:hidden;
+    position:fixed;
+    top:0px;
+}
+.player{
+    height: 50px;
+    border: 2px solid cornflowerblue;
+}
+.player_name{
+    font-weight: bolder;
+}
+
+.icon{
+    width: 150px;
+    height: 150px;
+}
+.action{
+    padding: 30px;
+}
+.players{
+    width: 500px;
+}
+.player_control{
+    width: 495px !important;
+    margin: 0 auto;
+}
+.player_status{
+    width: 30px;
+    height: 30px;
+}
+.player_status_container{
+    width: 35px !important;
+}
+.timer{
+    font-weight: bolder;
+}
+hr{
+    padding: 0;
+    border: none;
+    border-top: medium double #333;
+    color: #9a9a9a;
+    text-align: center;
+}
+hr:after {
+    content: "Mafia app";
+    display: inline-block;
+    position: relative;
+    top: -1.4em;
+    font-size: 0.7em;
+    padding: 0 0.25em;
+    background: white;
+}
+.controller_player_data{
+    font-weight: bold;
+}
+.header td{
+    width: 3%;
+}
+.header{
+    padding: 5%;
+}
+.controller_left{
+    width: 28% !important;
+    padding: 2% !important;
+}
+#settings{
+    align-self: center;
+    align-content: center;
+    display: grid;
+}
+.role_selector{
+    border: 1px black solid;
+}
+.role_selector td{
+    width: 5% !important;
+    height: 80px !important;
+    padding-left: 30px;
+    border: 1px gray solid;
+    align-items: center;
+}
+.role_selector button{
+    margin: auto;
+    width: 70%;
+    height: 40px;
+    background: lightskyblue;
+}
+.button_selected{
+    background: orangered !important;
+}
+

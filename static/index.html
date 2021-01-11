@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+          integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <title>Mafia dev</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+</head>
+<body>
+<div id="app">
+    <div>
+        <table class="header">
+
+            <h1 class="text-center" @click.prevent="modeSelect" id="title">
+                {{ mode > 0 ? "Судья " + mode + ". Панель управления" : title }}</h1>
+
+        </table>
+        <hr>
+        <br>
+
+
+        <div>
+            <div id="selector" v-if="mode==-1">
+                <h3 class="text-center">Выберите режим</h3>
+
+                <button class="mode" id="mode1" @click.prevent="modeSelect">
+                    Судья 1
+                </button>
+
+
+                <button class="mode" id="mode2" @click.prevent="modeSelect">
+                    Судья 2
+                </button>
+
+                <button class="mode" id="settings" @click.prevent="modeSelect">
+                    Настройки ролей
+                </button>
+
+            </div>
+
+            <div v-if="mode===0">
+
+                <table class="role_selector">
+                    <tr>
+                        <td>
+                            #
+                        </td>
+                        <td v-for="player in players">
+                            {{player.name}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Мафия
+                        </td>
+                        <td v-for="(player,i) in players">
+                            <button @click="setMafia" v-bind:value="i" v-if="player.role!=='mafia'">
+
+                            </button>
+                            <button @click="setMafia" v-bind:value="i" v-if="player.role==='mafia'" class="button_selected">
+
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Дон
+                        </td>
+                        <td v-for="(player,i) in players">
+                            <button @click="setDon" v-bind:value="i" v-if="player.role!=='don'">
+
+                            </button>
+                            <button v-bind:value="i" v-if="player.role==='don'" class="button_selected">
+
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Комиссар
+                        </td>
+                        <td v-for="(player,i) in players">
+                            <button @click="setSheriff" v-bind:value="i" v-if="player.role!=='sheriff'">
+
+                            </button>
+                            <button v-bind:value="i" v-if="player.role==='sheriff'" class="button_selected">
+
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+
+
+            <div id="controller1" class="controller" v-if="mode===1">
+                <table class="text-center">
+                    <td class="controller_left">
+                        <div>
+                            <h1 v-if="control.timer>0">{{ control.timer }}</h1>
+                        </div>
+                        <hr>
+                        <div class="controller_player_data">
+                            <div v-if="players[control.selected].role!==''">
+                                Роль: {{ ruDict[players[control.selected].role] }}
+                                <br>
+                            </div>
+                            Живой: {{ ruDict[players[control.selected].live] }}
+                        </div>
+                        <hr>
+                        <h6 class="text-center">Очередь голосования</h6>
+                        <li v-for="p in vote">{{ players[p].name }}</li>
+                        <button class="center text-center" @click.prevent="doAction" id="aVoteClear">clear</button>
+                    </td>
+
+                    <td>
+
+                        <table class="player_control">
+                            <tr><h1 class="timer">{{ players[control.selected].name }}</h1></tr>
+                            <tr>
+                                <td class="action">
+                                    <img src="icons/time.png" class="icon" @click.prevent="timerMinute">
+                                    <br>
+                                    Минута
+                                </td>
+                                <td class="action">
+                                    <img src="icons/time.png" class="icon" @click.prevent="timerHalfMinute">
+                                    <br>
+                                    Пол минуты
+                                </td>
+                                <td class="action">
+                                    <img src="icons/vote.png" class="icon" @click.prevent="doAction" id="aVote">
+                                    <br>
+                                    На голосование
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="action">
+                                    <img src="icons/white.png" class="icon">
+                                    <br>
+                                </td>
+                                <td class="action">
+                                    <img src="icons/white.png" class="icon">
+                                    <br>
+
+                                </td>
+                                <td class="action">
+                                    <img src="icons/white.png" class="icon">
+                                    <br>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="action">
+                                    <img src="icons/next.png" class="icon" @click.prevent="nextSpeech">
+                                    <br>
+                                    Следующая речь
+                                </td>
+                                <td class="action">
+                                    <img src="icons/speech.png" class="icon" @click.prevent="changeSpeech">
+                                    <br>
+                                    Дать речь
+                                </td>
+                                <td class="action">
+                                    <img src="icons/skull.png" class="icon" id="aKill" @click.prevent="doAction">
+                                    <br>
+                                    Убить
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    <td>
+
+                        <div class="card-block players">
+                            <table>
+                                <tr>PlayerList:</tr>
+                                <tr v-for="(player,i) of players" class="player" @click.prevent="selectPlayer"
+                                    v-bind:id="i">
+                                    <td class="player_status_container" @click.prevent="selectPlayer" v-bind:id="i">
+                                        <img src="icons/heart.png" class="player_status"
+                                             v-if="player.live && !player.dis" @click.prevent="selectPlayer"
+                                             v-bind:id="i">
+                                        <img src="icons/skull.png" class="player_status"
+                                             v-if="!player.live && !player.dis" @click.prevent="selectPlayer"
+                                             v-bind:id="i">
+                                        <img src="icons/ban.png" class="player_status" v-if="player.dis"
+                                             @click.prevent="selectPlayer" v-bind:id="i">
+                                    </td>
+                                    <td class="player_status_container" @click.prevent="selectPlayer" v-bind:id="i">
+                                        <img src="icons/speech.png" class="player_status" v-if="speaker==i"
+                                             @click.prevent="selectPlayer" v-bind:id="i">
+                                    </td>
+                                    <td class="player_status_container" @click.prevent="selectPlayer" v-bind:id="i">
+                                        <img src="icons/circle.png" class="player_status" v-if="startSpeaker==i"
+                                             @click.prevent="selectPlayer" v-bind:id="i">
+                                    </td>
+                                    <td class="player_name" @click.prevent="selectPlayer" v-bind:id="i">
+                                        {{ player.name }}
+                                    </td>
+                                    <td @click.prevent="selectPlayer" v-bind:id="i">
+                                        {{ ruDict[player.role] }}
+                                    </td>
+
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+
+                </table>
+            </div>
+
+
+            <div id="controller2" class="controller" v-if="mode==2">
+                <table class="text-center">
+                    <td class="controller_left">
+                        <div>
+                            <h1 v-if="control.timer>0">{{ control.timer }}</h1>
+                        </div>
+                        <hr>
+                        <div class="controller_player_data">
+                            Живой: {{ ruDict[players[control.selected].live] }}
+                            <br>
+                            Фолы: {{ players[control.selected].foul }}
+                        </div>
+                        <hr>
+                        <h6 class="text-center">Очередь голосования</h6>
+                        <li v-for="p in vote">{{ players[p].name }}</li>
+                    </td>
+
+                    <td>
+
+                        <table class="player_control">
+                            <tr><h1 class="timer">{{ players[control.selected].name }}</h1></tr>
+                            <tr>
+                                <td class="action">
+                                    <img src="icons/white.png" class="icon">
+                                    <br>
+
+                                </td>
+                                <td class="action">
+                                    <img src="icons/white.png" class="icon">
+                                    <br>
+
+                                </td>
+                                <td class="action">
+                                    <img src="icons/white.png" class="icon">
+                                    <br>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="action">
+                                    <img src="icons/warn.png" class="icon" @click.prevent="giveFoul">
+                                    <br>
+                                    Выдать фол
+                                </td>
+                                <td class="action">
+                                    <img src="icons/white.png" class="icon">
+                                    <br>
+
+                                </td>
+                                <td class="action">
+                                    <img src="icons/ban.png" class="icon" @click.prevent="ban">
+                                    <br>
+                                    Дисквалификация
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="action">
+                                    <img src="icons/refund.png" class="icon" @click.prevent="refundFoul">
+                                    <br>
+                                    Убрать фол
+                                </td>
+                                <td class="action">
+                                    <img src="icons/white.png" class="icon">
+                                    <br>
+
+                                </td>
+                                <td class="action">
+                                    <img src="icons/white.png" class="icon">
+                                    <br>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    <td>
+
+                        <div class="card-block players">
+                            <table>
+                                <tr>PlayerList:</tr>
+                                <tr v-for="(player,i) of players" class="player" @click.prevent="selectPlayer"
+                                    v-bind:id="i">
+                                    <td class="player_status_container" @click.prevent="selectPlayer" v-bind:id="i">
+                                        <img src="icons/heart.png" class="player_status"
+                                             v-if="player.live && !player.dis" @click.prevent="selectPlayer"
+                                             v-bind:id="i">
+                                        <img src="icons/skull.png" class="player_status"
+                                             v-if="!player.live && !player.dis" @click.prevent="selectPlayer"
+                                             v-bind:id="i">
+                                        <img src="icons/ban.png" class="player_status" v-if="player.dis"
+                                             @click.prevent="selectPlayer" v-bind:id="i">
+                                    </td>
+                                    <td class="player_status_container" @click.prevent="selectPlayer" v-bind:id="i">
+                                        <img src="icons/speech.png" class="player_status" v-if="speaker==i"
+                                             v-bind:id="i">
+                                    </td>
+                                    <td class="player_status_container" @click.prevent="selectPlayer" v-bind:id="i">
+                                        <img src="icons/circle.png" class="player_status" v-if="startSpeaker==i"
+                                             v-bind:id="i">
+                                    </td>
+                                    <td class="player_name" @click.prevent="selectPlayer" v-bind:id="i">
+                                        {{ player.name }}
+                                    </td>
+                                    <td class="text-center" @click.prevent="selectPlayer" v-bind:id="i">
+                                        <h3 v-if="player.foul>0 && !player.dis" @click.prevent="selectPlayer"
+                                            v-bind:id="i">{{ player.foul }}</h3>
+                                    </td>
+
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>
